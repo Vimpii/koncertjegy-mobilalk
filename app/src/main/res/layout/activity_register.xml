@@ -88,7 +88,8 @@
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back"
+            android:layout_marginStart="40dp"
+            android:text="@string/back"
             android:onClick="back"
             />
 
