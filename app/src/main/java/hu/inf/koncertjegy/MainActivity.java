@@ -6,12 +6,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
@@ -21,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     EditText password;
 
     private SharedPreferences preferences;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,15 +41,39 @@ public class MainActivity extends AppCompatActivity {
         password = findViewById(R.id.editTextPassword);
 
         preferences = getSharedPreferences(PREFS_KEY, MODE_PRIVATE);
+        mAuth = FirebaseAuth.getInstance();
 
     }
 
     public void login(View view) {
-
         String userNameStr = userName.getText().toString();
         String passwordStr = password.getText().toString();
 
+        if (userNameStr.isEmpty() || passwordStr.isEmpty()) {
+            Log.e(TAG, "All fields are required!");
+            // Display a message to the user
+            Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(userNameStr).matches()) {
+            Log.e(TAG, "Invalid email format!");
+            // Display a message to the user
+            Toast.makeText(this, "Invalid email format!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Log.i(TAG, "User name: " + userNameStr + ", Password: " + passwordStr);
+
+        mAuth.signInWithEmailAndPassword(userNameStr, passwordStr)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.i(TAG, "Login successful");
+                    } else {
+                        Log.e(TAG, "Login failed", task.getException());
+                        Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     public void register(View view) {

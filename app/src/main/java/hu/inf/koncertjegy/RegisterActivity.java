@@ -5,12 +5,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = RegisterActivity.class.getName();
@@ -20,6 +24,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText passwordEditText;
     EditText passwordAgainEditText;
     private SharedPreferences preferences;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
         passwordEditText.setText(password);
         passwordAgainEditText.setText(password);
 
+        mAuth = FirebaseAuth.getInstance();
+
     }
 
     public void register(View view) {
@@ -61,16 +68,47 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || passwordAgain.isEmpty()) {
             Log.e(TAG, "All fields are required!");
+            // Display a message to the user
+            Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Log.e(TAG, "Invalid email format!");
+            // Display a message to the user
+            Toast.makeText(this, "Invalid email format!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (password.length() < 6) {
+            Log.e(TAG, "Password is too short!");
+            // Display a message to the user
+            Toast.makeText(this, "Password is too short!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!password.equals(passwordAgain)) {
             Log.e(TAG, "Passwords do not match!");
+            // Display a message to the user
+            Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         Log.i(TAG, "User name: " + userName + ", Email: " + email + ", Password: " + password + ", Password again: " + passwordAgain);
 
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Log.i(TAG, "User registered successfully!");
+                    } else {
+                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                            Log.e(TAG, "Email is already in use!");
+                            Toast.makeText(this, "Email is already in use!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "User registration failed!");
+                        }
+                    }
+                });
     }
 
     public void back(View view) {
