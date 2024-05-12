@@ -51,14 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (userNameStr.isEmpty() || passwordStr.isEmpty()) {
             Log.e(TAG, "All fields are required!");
-            // Display a message to the user
             Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(userNameStr).matches()) {
             Log.e(TAG, "Invalid email format!");
-            // Display a message to the user
             Toast.makeText(this, "Invalid email format!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -69,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.i(TAG, "Login successful");
+                        // Start ConcertListActivity
+                        Intent intent = new Intent(MainActivity.this, ConcertListActivity.class);
+                        startActivity(intent);
+                        finish(); // Optional: if you want MainActivity to be removed from the back stack
                     } else {
                         Log.e(TAG, "Login failed", task.getException());
                         Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show();
