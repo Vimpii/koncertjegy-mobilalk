@@ -1,5 +1,6 @@
 package hu.inf.koncertjegy;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,11 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = RegisterActivity.class.getName();
@@ -52,7 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
         String userName = preferences.getString("userName", "");
         String password = preferences.getString("password", "");
 
-        userNameEditText.setText(userName);
+        emailEditText.setText(userName);
         passwordEditText.setText(password);
         passwordAgainEditText.setText(password);
 
@@ -68,38 +74,66 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || passwordAgain.isEmpty()) {
             Log.e(TAG, "All fields are required!");
-            // Display a message to the user
             Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Log.e(TAG, "Invalid email format!");
-            // Display a message to the user
             Toast.makeText(this, "Invalid email format!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (password.length() < 6) {
             Log.e(TAG, "Password is too short!");
-            // Display a message to the user
             Toast.makeText(this, "Password is too short!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!password.equals(passwordAgain)) {
             Log.e(TAG, "Passwords do not match!");
-            // Display a message to the user
             Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        Log.i(TAG, "User name: " + userName + ", Email: " + email + ", Password: " + password + ", Password again: " + passwordAgain);
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         Log.i(TAG, "User registered successfully!");
+
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                        // Create a new user with email and username
+                        Map<String, Object> user = new HashMap<>();
+                        user.put("email", email);
+                        user.put("username", userName);
+
+                        // Add a new document with the user's UID
+                        db.collection("Users")
+                                .document(mAuth.getCurrentUser().getUid())
+                                .set(user)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+
+                                    // Update the Firebase user's profile with usernamew
+                                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(userName)
+                                            .build();
+
+                                    mAuth.getCurrentUser().updateProfile(profileUpdates)
+                                            .addOnCompleteListener(task1 -> {
+                                                if (task1.isSuccessful()) {
+                                                    Log.d(TAG, "User profile updated.");
+
+                                                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                                    intent.putExtra("email", email);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+                                            });
+                                })
+                                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+
                     } else {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             Log.e(TAG, "Email is already in use!");
@@ -142,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity {
         String userName = preferences.getString("userName", "");
         String password = preferences.getString("password", "");
 
-        userNameEditText.setText(userName);
+        emailEditText.setText(userName);
         passwordEditText.setText(password);
         passwordAgainEditText.setText(password);
     }

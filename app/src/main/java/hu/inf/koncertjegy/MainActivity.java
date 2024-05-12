@@ -39,9 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
         userName = findViewById(R.id.editTextUserName);
         password = findViewById(R.id.editTextPassword);
-
         preferences = getSharedPreferences(PREFS_KEY, MODE_PRIVATE);
         mAuth = FirebaseAuth.getInstance();
+
+        String email = getIntent().getStringExtra("email");
+        if (email != null) {
+            userName.setText(email);
+        }
 
     }
 
@@ -61,16 +65,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Log.i(TAG, "User name: " + userNameStr + ", Password: " + passwordStr);
-
         mAuth.signInWithEmailAndPassword(userNameStr, passwordStr)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.i(TAG, "Login successful");
-                        // Start ConcertListActivity
                         Intent intent = new Intent(MainActivity.this, ConcertListActivity.class);
                         startActivity(intent);
-                        finish(); // Optional: if you want MainActivity to be removed from the back stack
+                        finish();
                     } else {
                         Log.e(TAG, "Login failed", task.getException());
                         Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show();

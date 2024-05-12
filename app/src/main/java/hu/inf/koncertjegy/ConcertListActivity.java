@@ -63,7 +63,7 @@ public class ConcertListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, gridNumber));
         mConcertList = new ArrayList<>();
 
-        mAdapter = new ConcertAdapter(this, mConcertList);
+        mAdapter = new ConcertAdapter(this, mConcertList, user);
         mRecyclerView.setAdapter(mAdapter);
 
         initalizeData();
@@ -121,20 +121,20 @@ public class ConcertListActivity extends AppCompatActivity {
             mRecyclerView.setLayoutManager(new GridLayoutManager(this, gridNumber));
             return true;
         } else if (id == R.id.view_selector) {
+            gridNumber = 2;
             if (viewRow) {
                 changeSpanCount(item, R.drawable.view_grid, 1);
             } else {
                 changeSpanCount(item, R.drawable.view_row, 2);
             }
             return true;
-        } else if (id == R.id.setting_button) {
+        } else if (id == R.id.profile_button) {
             gridNumber = 3;
-            mRecyclerView.setLayoutManager(new GridLayoutManager(this, gridNumber));
+            startActivity(new Intent(this, ProfileActivity.class));
             return true;
         } else if (id == R.id.logout_button) {
             mAuth.signOut();
 
-            // Create an intent to start LoginActivity
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
 

@@ -14,13 +14,13 @@
         android:id="@+id/view_selector"
         android:title="@string/view"
         android:icon="@drawable/view_grid"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         />
 
     <item
-        android:id="@+id/setting_button"
-        android:title="@string/settings"
-        app:showAsAction="never"
+        android:id="@+id/profile_button"
+        android:title="@string/profile"
+        app:showAsAction="always"
         />
 
     <item

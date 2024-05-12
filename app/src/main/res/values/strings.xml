@@ -20,6 +20,11 @@
     <string name="view">View</string>
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
+    <string name="profile">Profile</string>
+    <string name="your_profile">Your Profile</string>
+    <string name="save">Save</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="your_tickets">Your Tickets</string>
 
     <string-array name="performers">
         <item>AWS</item>
@@ -33,7 +38,7 @@
         <item>Budapest Park</item>
         <item>Puskás Aréna</item>
         <item>Szent Gellért Fórum</item>
-        <item>MVM DomeOled TV</item>
+        <item>MVM Dome</item>
         <item>IH Rendezvényközpont</item>
     </string-array>
 
@@ -63,10 +68,10 @@
 
     <array name="quantities">
         <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
     </array>
 
 </resources>
